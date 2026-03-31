@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Nova{% endif %} Ordem de Serviço{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{% if form.instance.pk %}Editar{% else %}Nova{% endif %} Ordem de Serviço</h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">{{ form.cliente|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.computador|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">{{ form.titulo|as_crispy_field }}</div>
+                <div class="col-md-4">{{ form.prioridade|as_crispy_field }}</div>
+            </div>
+            {{ form.descricao_problema|as_crispy_field }}
+            {{ form.observacoes|as_crispy_field }}
+            <div class="row">
+                <div class="col-md-6">{{ form.tecnico_responsavel|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.data_previsao|as_crispy_field }}</div>
+            </div>
+            <hr>
+            <h5>Valores</h5>
+            <div class="row">
+                <div class="col-md-4">{{ form.valor_mao_obra|as_crispy_field }}</div>
+                <div class="col-md-4">{{ form.valor_pecas|as_crispy_field }}</div>
+                <div class="col-md-4">{{ form.desconto|as_crispy_field }}</div>
+            </div>
+            <button type="submit" class="btn btn-success">Salvar</button>
+            <a href="{% url 'os_list' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de OS por Período</title>
+    <style>
+        @page { size: A4; margin: 2cm; }
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .stat-card { border: 1px solid #ddd; padding: 10px; text-align: center; border-radius: 5px; }
+        .stat-number { font-size: 24px; font-weight: bold; color: #007bff; }
+        .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .table th { background-color: #f2f2f2; }
+        .footer { margin-top: 30px; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #ccc; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SISTEMA DE ORDEM DE SERVIÇO</h1>
+        <h3>RELATÓRIO POR PERÍODO</h3>
+        <p>Período: {{ data_inicio|date:"d/m/Y" }} a {{ data_fim|date:"d/m/Y" }}</p>
+        <p>Emissão: {{ data_emissao|date:"d/m/Y H:i" }}</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_os }}</div>
+            <div>Total de OS</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">R$ {{ total_valor|floatformat:2 }}</div>
+            <div>Valor Total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">R$ {{ media_valor|floatformat:2 }}</div>
+            <div>Valor Médio</div>
+        </div>
+    </div>
+
+    <h2>Lista de Ordens de Serviço</h2>
+    <table class="table">
+        <thead>
+            <tr><th>Nº OS</th><th>Cliente</th><th>Data</th><th>Status</th><th>Valor</th> </tr>
+        </thead>
+        <tbody>
+            {% for os in ordens %}
+            <tr>
+                <td>{{ os.numero_os }}</td>
+                <td>{{ os.cliente.nome_razao_social }}</td>
+                <td>{{ os.data_abertura|date:"d/m/Y" }}</td>
+                <td>{{ os.get_status_display }}</td>
+                <td>R$ {{ os.valor_total|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">Nenhuma OS encontrada no período</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Documento gerado em {{ data_emissao|date:"d/m/Y H:i:s" }}</p>
+    </div>
+</body>
+</html>

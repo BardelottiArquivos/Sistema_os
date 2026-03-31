@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Novo{% endif %} Cliente{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{% if form.instance.pk %}Editar{% else %}Novo{% endif %} Cliente</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" id="clienteForm">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">{{ form.tipo|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.cpf_cnpj|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">{{ form.nome_razao_social|as_crispy_field }}</div>
+                <div class="col-md-4">{{ form.rg_ie|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">{{ form.email|as_crispy_field }}</div>
+                <div class="col-md-4">{{ form.telefone|as_crispy_field }}</div>
+                <div class="col-md-4">{{ form.celular|as_crispy_field }}</div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        {{ form.cep|as_crispy_field }}
+                        <button type="button" class="btn btn-primary" id="btnConsultarCEP" style="margin-top: 32px;">Consultar</button>
+                    </div>
+                </div>
+                <div id="cep-alert-container"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form.logradouro|as_crispy_field }}</div>
+                <div class="col-md-2">{{ form.numero|as_crispy_field }}</div>
+                <div class="col-md-4">{{ form.complemento|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">{{ form.bairro|as_crispy_field }}</div>
+                <div class="col-md-4">{{ form.cidade|as_crispy_field }}</div>
+                <div class="col-md-2">{{ form.estado|as_crispy_field }}</div>
+            </div>
+            <div class="row">{{ form.observacoes|as_crispy_field }}</div>
+            <button type="submit" class="btn btn-success">Salvar</button>
+            <a href="{% url 'cliente_list' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/cep_autofill.js' %}"></script>
+{% endblock %}

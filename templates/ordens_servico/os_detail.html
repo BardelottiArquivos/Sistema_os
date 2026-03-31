@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}OS {{ os.numero_os }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3>Ordem de Serviço #{{ os.numero_os }}</h3>
+        <div>
+            <a href="{% url 'os_update' os.pk %}" class="btn btn-warning">Editar</a>
+            <a href="{% url 'relatorios:os_pdf' os.pk %}" class="btn btn-primary" target="_blank"><i class="bi bi-printer"></i> Imprimir</a>
+            <a href="{% url 'os_list' %}" class="btn btn-secondary">Voltar</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Cliente:</strong> <a href="{% url 'cliente_detail' os.cliente.pk %}">{{ os.cliente.nome_razao_social }}</a></p>
+                <p><strong>Computador:</strong> {% if os.computador %}<a href="{% url 'computador_detail' os.computador.pk %}">{{ os.computador.nome_identificacao }}</a>{% else %}-{% endif %}</p>
+                <p><strong>Técnico:</strong> {{ os.tecnico_responsavel.get_full_name|default:os.tecnico_responsavel.username }}</p>
+                <p><strong>Status:</strong> <span class="badge bg-{{ os.status }}">{{ os.get_status_display }}</span></p>
+                <p><strong>Prioridade:</strong> <span class="badge bg-{% if os.prioridade == 'urgente' %}danger{% elif os.prioridade == 'alta' %}warning{% else %}secondary{% endif %}">{{ os.get_prioridade_display }}</span></p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Data Abertura:</strong> {{ os.data_abertura|date:"d/m/Y H:i" }}</p>
+                <p><strong>Data Previsão:</strong> {{ os.data_previsao|date:"d/m/Y"|default:"-" }}</p>
+                <p><strong>Data Início:</strong> {{ os.data_inicio|date:"d/m/Y H:i"|default:"-" }}</p>
+                <p><strong>Data Conclusão:</strong> {{ os.data_conclusao|date:"d/m/Y H:i"|default:"-" }}</p>
+            </div>
+        </div>
+        
+        <hr>
+        <h5>Problema Relatado</h5>
+        <p>{{ os.descricao_problema|linebreaks }}</p>
+        
+        {% if os.solucao_aplicada %}
+        <h5>Solução Aplicada</h5>
+        <p>{{ os.solucao_aplicada|linebreaks }}</p>
+        {% endif %}
+        
+        <hr>
+        <h5>Valores</h5>
+        <div class="row">
+            <div class="col-md-4"><strong>Mão de Obra:</strong> R$ {{ os.valor_mao_obra|floatformat:2 }}</div>
+            <div class="col-md-4"><strong>Peças:</strong> R$ {{ os.valor_pecas|floatformat:2 }}</div>
+            <div class="col-md-4"><strong>Desconto:</strong> R$ {{ os.desconto|floatformat:2 }}</div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12"><h4>Total: R$ {{ os.valor_total|floatformat:2 }}</h4></div>
+        </div>
+        
+        {% if os.itens.all %}
+        <hr>
+        <h5>Peças Utilizadas</h5>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr><th>Descrição</th><th>Quantidade</th><th>Valor Unitário</th><th>Valor Total</th></tr>
+                </thead>
+                <tbody>
+                    {% for item in os.itens.all %}
+                    <tr>
+                        <td>{{ item.descricao }}</td>
+                        <td>{{ item.quantidade }}</td>
+                        <td>R$ {{ item.valor_unitario|floatformat:2 }}</td>
+                        <td>R$ {{ item.valor_total|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

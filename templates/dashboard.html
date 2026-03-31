@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-file-text"></i> Total OS</h5>
+                <h2>{{ total_os }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-folder"></i> Abertas</h5>
+                <h2>{{ os_abertas }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-gear"></i> Em Andamento</h5>
+                <h2>{{ os_andamento }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-check-circle"></i> Concluídas</h5>
+                <h2>{{ os_concluidas }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Últimas Ordens de Serviço</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr><th>Nº OS</th><th>Cliente</th><th>Título</th><th>Status</th><th>Prioridade</th><th>Ações</th> </tr>
+                        </thead>
+                        <tbody>
+                            {% for os in ultimas_os %}
+                            <tr>
+                                <td>{{ os.numero_os }}</td>
+                                <td>{{ os.cliente.nome_razao_social|truncatechars:30 }}</td>
+                                <td>{{ os.titulo|truncatechars:30 }}</td>
+                                <td><span class="badge bg-{{ os.status }}">{{ os.get_status_display }}</span></td>
+                                <td><span class="badge bg-{% if os.prioridade == 'urgente' %}danger{% elif os.prioridade == 'alta' %}warning{% else %}secondary{% endif %}">{{ os.get_prioridade_display }}</span></td>
+                                <td><a href="{% url 'os_detail' os.pk %}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="6" class="text-center">Nenhuma OS encontrada</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% include 'includes/pagination.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Atalhos Rápidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'os_create' %}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nova Ordem de Serviço</a>
+                    <a href="{% url 'cliente_create' %}" class="btn btn-success"><i class="bi bi-person-plus"></i> Novo Cliente</a>
+                    <a href="{% url 'computador_create' %}" class="btn btn-info"><i class="bi bi-pc-display"></i> Novo Computador</a>
+                    <a href="{% url 'relatorios:dashboard' %}" class="btn btn-secondary"><i class="bi bi-printer"></i> Gerar Relatório</a>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Status das OS</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="osChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('osChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Abertas', 'Em Andamento', 'Concluídas', 'Outros'],
+            datasets: [{
+                data: [{{ os_abertas }}, {{ os_andamento }}, {{ os_concluidas }}, {{ total_os|add:"-"|add:os_abertas|add:"-"|add:os_andamento|add:"-"|add:os_concluidas }}],
+                backgroundColor: ['#ffc107', '#17a2b8', '#28a745', '#6c757d']
+            }]
+        }
+    });
+</script>
+{% endblock %}

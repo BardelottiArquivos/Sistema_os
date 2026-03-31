@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>OS {{ os.numero_os }}</title>
+    <style>
+        @page { size: A4; margin: 2cm; }
+        body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .header h1 { margin: 0; color: #333; font-size: 24px; }
+        .info-section { margin-bottom: 20px; }
+        .info-section h2 { font-size: 16px; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px; }
+        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .info-item { margin-bottom: 5px; }
+        .info-item strong { display: inline-block; min-width: 100px; color: #555; }
+        .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .table th { background-color: #f2f2f2; }
+        .total-box { margin-top: 20px; text-align: right; border-top: 2px solid #333; padding-top: 10px; }
+        .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #ccc; padding-top: 10px; }
+        .signature { margin-top: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .signature-line { border-top: 1px solid #333; margin-top: 30px; padding-top: 5px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SISTEMA DE ORDEM DE SERVIÇO</h1>
+        <h3>RELATÓRIO DE ORDEM DE SERVIÇO</h3>
+        <p>Emissão: {{ data_emissao|date:"d/m/Y H:i" }}</p>
+    </div>
+
+    <div class="info-section">
+        <h2>Identificação da OS</h2>
+        <div class="info-grid">
+            <div class="info-item"><strong>Número OS:</strong> {{ os.numero_os }}</div>
+            <div class="info-item"><strong>Status:</strong> {{ os.get_status_display }}</div>
+            <div class="info-item"><strong>Prioridade:</strong> {{ os.get_prioridade_display }}</div>
+            <div class="info-item"><strong>Data Abertura:</strong> {{ os.data_abertura|date:"d/m/Y H:i" }}</div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <h2>Cliente</h2>
+        <div class="info-grid">
+            <div class="info-item"><strong>Nome:</strong> {{ cliente.nome_razao_social }}</div>
+            <div class="info-item"><strong>CPF/CNPJ:</strong> {{ cliente.cpf_cnpj }}</div>
+            <div class="info-item"><strong>Telefone:</strong> {{ cliente.telefone }}</div>
+            <div class="info-item"><strong>Email:</strong> {{ cliente.email }}</div>
+            <div class="info-item"><strong>Endereço:</strong> {{ cliente.logradouro }}, {{ cliente.numero }} - {{ cliente.bairro }} - {{ cliente.cidade }}/{{ cliente.estado }}</div>
+        </div>
+    </div>
+
+    {% if computador %}
+    <div class="info-section">
+        <h2>Computador</h2>
+        <div class="info-grid">
+            <div class="info-item"><strong>Identificação:</strong> {{ computador.nome_identificacao }}</div>
+            <div class="info-item"><strong>Tipo:</strong> {{ computador.get_tipo_display }}</div>
+            <div class="info-item"><strong>Fabricante:</strong> {{ computador.fabricante }} {{ computador.modelo }}</div>
+            <div class="info-item"><strong>Nº Série:</strong> {{ computador.numero_serie }}</div>
+            <div class="info-item"><strong>Processador:</strong> {{ computador.processador }}</div>
+            <div class="info-item"><strong>Memória RAM:</strong> {{ computador.memoria_ram }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="info-section">
+        <h2>Detalhes do Serviço</h2>
+        <div class="info-item"><strong>Título:</strong> {{ os.titulo }}</div>
+        <div class="info-item"><strong>Problema Relatado:</strong><p>{{ os.descricao_problema|linebreaks }}</p></div>
+        {% if os.solucao_aplicada %}
+        <div class="info-item"><strong>Solução Aplicada:</strong><p>{{ os.solucao_aplicada|linebreaks }}</p></div>
+        {% endif %}
+    </div>
+
+    {% if itens %}
+    <div class="info-section">
+        <h2>Peças Utilizadas</h2>
+        <table class="table">
+            <thead><tr><th>Descrição</th><th>Quantidade</th><th>Valor Unitário</th><th>Valor Total</th></tr></thead>
+            <tbody>
+                {% for item in itens %}
+                <tr>
+                    <td>{{ item.descricao }}</td>
+                    <td>{{ item.quantidade }}</td>
+                    <td>R$ {{ item.valor_unitario|floatformat:2 }}</td>
+                    <td>R$ {{ item.valor_total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="total-box">
+        <p><strong>Valor Mão de Obra:</strong> R$ {{ os.valor_mao_obra|floatformat:2 }}<br>
+        <strong>Valor Peças:</strong> R$ {{ os.valor_pecas|floatformat:2 }}<br>
+        <strong style="font-size: 18px;">VALOR TOTAL: R$ {{ os.valor_total|floatformat:2 }}</strong></p>
+    </div>
+
+    <div class="signature">
+        <div><div class="signature-line">{{ tecnico.get_full_name }}<br>Técnico Responsável</div></div>
+        <div><div class="signature-line">{{ cliente.nome_razao_social }}<br>Cliente</div></div>
+    </div>
+
+    <div class="footer">
+        <p>Documento gerado em {{ data_emissao|date:"d/m/Y H:i:s" }}</p>
+    </div>
+</body>
+</html>

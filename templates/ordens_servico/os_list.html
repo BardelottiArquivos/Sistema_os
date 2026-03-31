@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Ordens de Serviço{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3>Ordens de Serviço</h3>
+        <a href="{% url 'os_create' %}" class="btn btn-primary"><i class="bi bi-plus"></i> Nova OS</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>Nº OS</th><th>Cliente</th><th>Título</th><th>Status</th><th>Prioridade</th><th>Data</th><th>Valor</th><th>Ações</th>  </>
+                </thead>
+                <tbody>
+                    {% for os in ordens %}
+                    <tr>
+                        <td>{{ os.numero_os }}</td>
+                        <td>{{ os.cliente.nome_razao_social }}</td>
+                        <td>{{ os.titulo|truncatechars:30 }}</td>
+                        <td><span class="badge bg-{{ os.status }}">{{ os.get_status_display }}</span></td>
+                        <td><span class="badge bg-{% if os.prioridade == 'urgente' %}danger{% elif os.prioridade == 'alta' %}warning{% else %}secondary{% endif %}">{{ os.get_prioridade_display }}</span></td>
+                        <td>{{ os.data_abertura|date:"d/m/Y" }}</td>
+                        <td>R$ {{ os.valor_total|floatformat:2 }}</td>
+                        <td>
+                            <a href="{% url 'os_detail' os.pk %}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a>
+                            <a href="{% url 'os_update' os.pk %}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'relatorios:os_pdf' os.pk %}" class="btn btn-sm btn-primary" target="_blank"><i class="bi bi-printer"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="text-center">Nenhuma ordem de serviço cadastrada</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'includes/pagination.html' %}
+    </div>
+</div>
+{% endblock %}

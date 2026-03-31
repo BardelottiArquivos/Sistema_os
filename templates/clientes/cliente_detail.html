@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Cliente{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3>{{ cliente.nome_razao_social }}</h3>
+        <div>
+            <a href="{% url 'cliente_update' cliente.pk %}" class="btn btn-warning">Editar</a>
+            <a href="{% url 'cliente_delete' cliente.pk %}" class="btn btn-danger">Excluir</a>
+            <a href="{% url 'cliente_list' %}" class="btn btn-secondary">Voltar</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Tipo:</strong> {{ cliente.get_tipo_display }}</p>
+                <p><strong>CPF/CNPJ:</strong> {{ cliente.cpf_cnpj }}</p>
+                <p><strong>RG/IE:</strong> {{ cliente.rg_ie|default:"-" }}</p>
+                <p><strong>Email:</strong> {{ cliente.email }}</p>
+                <p><strong>Telefone:</strong> {{ cliente.telefone }}</p>
+                <p><strong>Celular:</strong> {{ cliente.celular|default:"-" }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>CEP:</strong> {{ cliente.cep }}</p>
+                <p><strong>Endereço:</strong> {{ cliente.logradouro }}, {{ cliente.numero }}</p>
+                <p><strong>Complemento:</strong> {{ cliente.complemento|default:"-" }}</p>
+                <p><strong>Bairro:</strong> {{ cliente.bairro }}</p>
+                <p><strong>Cidade/UF:</strong> {{ cliente.cidade }}/{{ cliente.estado }}</p>
+                <p><strong>Status:</strong> {% if cliente.ativo %}Ativo{% else %}Inativo{% endif %}</p>
+            </div>
+        </div>
+        <hr>
+        <h5>Observações</h5>
+        <p>{{ cliente.observacoes|default:"Nenhuma observação" }}</p>
+        <hr>
+        <h5>Computadores do Cliente</h5>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr><th>Identificação</th><th>Tipo</th><th>Fabricante</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for computador in cliente.computadores.all %}
+                    <tr>
+                        <td><a href="{% url 'computador_detail' computador.pk %}">{{ computador.nome_identificacao }}</a></td>
+                        <td>{{ computador.get_tipo_display }}</td>
+                        <td>{{ computador.fabricante }}</td>
+                        <td>{{ computador.get_status_display }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center">Nenhum computador cadastrado</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
