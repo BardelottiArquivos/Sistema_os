@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
+from django.contrib.auth import get_user_model
 from apps.ordens_servico.models import OrdemServico
 
 
@@ -36,3 +38,17 @@ def dashboard(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+
+# ⚠️ FUNÇÃO TEMPORÁRIA PARA CRIAR ADMIN - USE UMA VEZ E DEPOIS REMOVA
+def criar_admin(request):
+    User = get_user_model()
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            username='admin',
+            email='admin@email.com',
+            password='25252525',
+            matricula='ADMIN001'
+        )
+        return JsonResponse({'status': 'Admin criado com sucesso!'})
+    return JsonResponse({'status': 'Admin já existe'})
