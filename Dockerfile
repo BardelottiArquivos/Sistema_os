@@ -50,5 +50,4 @@ COPY . .
 
 EXPOSE 8000
 
-# ⚠️ SEM migrate, SEM collectstatic, apenas o CMD
-CMD gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+CMD ["sh", "-c", "python manage.py migrate && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT"]
