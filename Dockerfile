@@ -54,7 +54,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Coletar arquivos estáticos
-RUN python manage.py collectstatic --noinput
+# RUN python manage.py collectstatic --noinput
 
 # Porta que o Render vai usar (importante!)
 EXPOSE 8000
