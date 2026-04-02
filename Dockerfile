@@ -53,6 +53,8 @@ COPY . .
 
 EXPOSE 8000
 
+RUN echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@email.com', '25252525', matricula='ADMIN001')" | python manage.py shell
+
 # Roda migrations antes de iniciar o Gunicorn
 CMD python manage.py migrate --noinput && \
     gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
