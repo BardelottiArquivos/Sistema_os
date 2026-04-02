@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.usuarios.views import login_view, dashboard, logout_view
+from apps.usuarios.views import login_view, dashboard, logout_view, criar_admin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,6 +31,9 @@ urlpatterns = [
     path('computadores/', include('apps.computadores.urls')),
     path('ordens/', include('apps.ordens_servico.urls')),
     path('relatorios/', include('apps.relatorios.urls')),
+    
+    # ⚠️ URL TEMPORÁRIA PARA CRIAR ADMIN - REMOVA DEPOIS DE USAR
+    path('criar-admin/', criar_admin, name='criar_admin'),
 ]
 
 if settings.DEBUG:
