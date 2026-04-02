@@ -29,7 +29,6 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Dependências do sistema
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
@@ -44,17 +43,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Instala dependências Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o projeto
 COPY . .
 
 EXPOSE 8000
 
-RUN echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@email.com', '25252525', matricula='ADMIN001')" | python manage.py shell
+# ⚠️ REMOVA COMPLETAMENTE a linha do createsuperuser daqui!
 
-# Roda migrations antes de iniciar o Gunicorn
-CMD python manage.py migrate --noinput && \
-    gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+CMD gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
