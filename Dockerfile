@@ -56,6 +56,10 @@ COPY . .
 # Coletar arquivos estáticos
 # RUN python manage.py collectstatic --noinput
 
+# ⚠️ ADICIONE ESTAS LINHAS:
+RUN python manage.py migrate --noinput
+RUN python manage.py collectstatic --noinput
+
 # Porta que o Render vai usar (importante!)
 EXPOSE 8000
 
