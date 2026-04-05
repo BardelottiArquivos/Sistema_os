@@ -110,8 +110,9 @@ class OSDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('os_list')
 
 # API para buscar OS pelo número (ex. 2024/0001)
-    def buscar_os_por_numero(request):
-       numero = request.GET.get('numero')
+def buscar_os_por_numero(request):
+    """API para buscar OS pelo número (ex: 2025/0001)"""
+    numero = request.GET.get('numero')
     if not numero:
         return JsonResponse({'error': 'Número não informado'}, status=400)
     
