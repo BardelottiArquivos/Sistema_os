@@ -27,13 +27,17 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
     path('dashboard/', dashboard, name='dashboard'),
     
+    # URLs temporárias (remover depois)
+    path('criar-admin/', criar_admin, name='criar_admin'),
+    
+   
+    # Apps
+    # primeira linha adicionadapara usuario
+    path('usuarios/', include('apps.usuarios.urls')),
     path('clientes/', include('apps.clientes.urls')),
     path('computadores/', include('apps.computadores.urls')),
     path('ordens/', include('apps.ordens_servico.urls')),
     path('relatorios/', include('apps.relatorios.urls')),
-    
-    # ⚠️ URL TEMPORÁRIA PARA CRIAR ADMIN - REMOVA DEPOIS DE USAR
-    path('criar-admin/', criar_admin, name='criar_admin'),
 ]
 
 if settings.DEBUG:
