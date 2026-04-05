@@ -38,6 +38,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
 from .models import OrdemServico
 from apps.usuarios.models import Usuario
+from django.http import JsonResponse
 
 
 class OSListView(LoginRequiredMixin, ListView):
@@ -107,3 +108,16 @@ class OSDeleteView(LoginRequiredMixin, DeleteView):
     model = OrdemServico
     template_name = 'ordens_servico/os_confirm_delete.html'
     success_url = reverse_lazy('os_list')
+
+# API para buscar OS pelo número (ex. 2024/0001)
+    def buscar_os_por_numero(request):
+    """API para buscar OS pelo número (ex: 2025/0001)"""
+    numero = request.GET.get('numero')
+    if not numero:
+        return JsonResponse({'error': 'Número não informado'}, status=400)
+    
+    try:
+        os = OrdemServico.objects.get(numero_os=numero)
+        return JsonResponse({'id': os.id})
+    except OrdemServico.DoesNotExist:
+        return JsonResponse({'error': 'OS não encontrada'}, status=404)
