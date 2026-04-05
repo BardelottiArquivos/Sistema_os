@@ -284,10 +284,10 @@ Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes
 ________________________________________
 
 👨‍💻 AUTORES
-Nome	Função	GitHub
-Carlos Bardelotti
-Fabio Marquês de Paula	Desenvolvedor
-Documentação Técnica	@BardelottiArquivos
+
+Carlos Bardelotti       Desenvolvedor        @BardelottiArquivos
+
+Fabio Marquês de Paula	Documentação Técnica	
 
 ________________________________________
 
