@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from apps.usuarios.views import login_view, dashboard, logout_view, criar_admin
+from apps.ordens_servico.views import buscar_os_por_numero
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,3 +44,10 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+
+urlpatterns = [
+    # ... outras URLs ...
+    path('api/buscar-os/', buscar_os_por_numero, name='buscar_os'),
+]
