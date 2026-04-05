@@ -28,26 +28,20 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
     path('dashboard/', dashboard, name='dashboard'),
     
-    # URLs temporárias (remover depois)
-    path('criar-admin/', criar_admin, name='criar_admin'),
+    # API
+    path('api/buscar-os/', buscar_os_por_numero, name='buscar_os'),
     
-   
     # Apps
-    # primeira linha adicionadapara usuario
     path('usuarios/', include('apps.usuarios.urls')),
     path('clientes/', include('apps.clientes.urls')),
     path('computadores/', include('apps.computadores.urls')),
     path('ordens/', include('apps.ordens_servico.urls')),
     path('relatorios/', include('apps.relatorios.urls')),
+    
+    # URL temporária
+    path('criar-admin/', criar_admin, name='criar_admin'),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
-
-
-urlpatterns = [
-    # ... outras URLs ...
-    path('api/buscar-os/', buscar_os_por_numero, name='buscar_os'),
-]
