@@ -36,9 +36,9 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import OrdemServico
 from apps.usuarios.models import Usuario
-from django.http import JsonResponse
 
 
 class OSListView(LoginRequiredMixin, ListView):
@@ -51,7 +51,6 @@ class OSListView(LoginRequiredMixin, ListView):
         user = self.request.user
         queryset = OrdemServico.objects.all()
         
-        # Técnico vê apenas suas OS
         if user.tipo == 'tecnico' and not user.is_superuser:
             queryset = queryset.filter(tecnico_responsavel=user)
         
@@ -68,7 +67,6 @@ class OSCreateView(LoginRequiredMixin, CreateView):
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Mostrar apenas usuários do tipo técnico
         form.fields['tecnico_responsavel'].queryset = Usuario.objects.filter(tipo='tecnico')
         form.fields['computador'].required = False
         return form
@@ -109,7 +107,11 @@ class OSDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'ordens_servico/os_confirm_delete.html'
     success_url = reverse_lazy('os_list')
 
-# API para buscar OS pelo número (ex. 2024/0001)
+
+# ============================================
+# API PARA BUSCAR OS PELO NÚMERO
+# ============================================
+
 def buscar_os_por_numero(request):
     """API para buscar OS pelo número (ex: 2025/0001)"""
     numero = request.GET.get('numero')
