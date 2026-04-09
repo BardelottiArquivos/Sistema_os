@@ -62,18 +62,17 @@ class OSListView(LoginRequiredMixin, ListView):
         if user.tipo == 'tecnico' and not user.is_superuser:
             queryset = queryset.filter(tecnico_responsavel=user)
         
-        # Filtrar por status se informado
-        status = self.request.GET.get('status')
-        if status:
-            queryset = queryset.filter(status=status)
+        # Filtrar por status (salvar o valor para usar no contexto)
+        self.status_filtro = self.request.GET.get('status', '')
+        if self.status_filtro:
+            queryset = queryset.filter(status=self.status_filtro)
         
         return queryset.order_by('-data_abertura')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['status_atual'] = self.status_filtro  # ← ADICIONE ESTA LINHA
+        context['status_atual'] = self.status_filtro
         context['status_opcoes'] = OrdemServico.STATUS
-        context['status_atual'] = self.request.GET.get('status', '')
         return context
 
 
