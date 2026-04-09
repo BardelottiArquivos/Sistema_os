@@ -36,10 +36,17 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from django.http import JsonResponse
 from .models import OrdemServico
 from apps.usuarios.models import Usuario
 
+
+# ============================================
+# LISTAGEM DE ORDENS DE SERVIÇO
+# ============================================
 
 class OSListView(LoginRequiredMixin, ListView):
     model = OrdemServico
@@ -51,11 +58,27 @@ class OSListView(LoginRequiredMixin, ListView):
         user = self.request.user
         queryset = OrdemServico.objects.all()
         
+        # Técnico vê apenas suas OS
         if user.tipo == 'tecnico' and not user.is_superuser:
             queryset = queryset.filter(tecnico_responsavel=user)
         
+        # Filtrar por status se informado
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+        
         return queryset.order_by('-data_abertura')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_opcoes'] = OrdemServico.STATUS
+        context['status_atual'] = self.request.GET.get('status', '')
+        return context
 
+
+# ============================================
+# CRIAÇÃO DE ORDEM DE SERVIÇO
+# ============================================
 
 class OSCreateView(LoginRequiredMixin, CreateView):
     model = OrdemServico
@@ -67,7 +90,9 @@ class OSCreateView(LoginRequiredMixin, CreateView):
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
+        # Mostrar apenas usuários do tipo técnico
         form.fields['tecnico_responsavel'].queryset = Usuario.objects.filter(tipo='tecnico')
+        form.fields['tecnico_responsavel'].empty_label = "Selecione um técnico"
         form.fields['computador'].required = False
         return form
     
@@ -80,11 +105,19 @@ class OSCreateView(LoginRequiredMixin, CreateView):
         return super().form_invalid(form)
 
 
+# ============================================
+# DETALHES DA ORDEM DE SERVIÇO
+# ============================================
+
 class OSDetailView(LoginRequiredMixin, DetailView):
     model = OrdemServico
     template_name = 'ordens_servico/os_detail.html'
     context_object_name = 'os'
 
+
+# ============================================
+# EDIÇÃO DE ORDEM DE SERVIÇO
+# ============================================
 
 class OSUpdateView(LoginRequiredMixin, UpdateView):
     model = OrdemServico
@@ -98,9 +131,14 @@ class OSUpdateView(LoginRequiredMixin, UpdateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields['tecnico_responsavel'].queryset = Usuario.objects.filter(tipo='tecnico')
+        form.fields['tecnico_responsavel'].empty_label = "Selecione um técnico"
         form.fields['computador'].required = False
         return form
 
+
+# ============================================
+# EXCLUSÃO DE ORDEM DE SERVIÇO
+# ============================================
 
 class OSDeleteView(LoginRequiredMixin, DeleteView):
     model = OrdemServico
@@ -109,7 +147,56 @@ class OSDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # ============================================
-# API PARA BUSCAR OS PELO NÚMERO
+# MUDANÇA DE STATUS DA ORDEM DE SERVIÇO
+# ============================================
+
+@login_required
+def mudar_status(request, os_id, novo_status):
+    """Muda o status da ordem de serviço"""
+    os = get_object_or_404(OrdemServico, id=os_id)
+    
+    # Verificar permissão
+    user = request.user
+    if user.tipo not in ['admin', 'gerente', 'tecnico'] and not user.is_superuser:
+        messages.error(request, 'Você não tem permissão para alterar status.')
+        return redirect('os_detail', pk=os_id)
+    
+    # Técnico só pode alterar suas OS
+    if user.tipo == 'tecnico' and os.tecnico_responsavel != user:
+        messages.error(request, 'Você só pode alterar suas próprias ordens de serviço.')
+        return redirect('os_detail', pk=os_id)
+    
+    # Validar status
+    status_validos = [s[0] for s in OrdemServico.STATUS]
+    if novo_status not in status_validos:
+        messages.error(request, 'Status inválido.')
+        return redirect('os_detail', pk=os_id)
+    
+    # Salvar status anterior para mensagem
+    status_anterior = os.status
+    
+    # Atualizar status
+    os.status = novo_status
+    
+    # Atualizar datas automaticamente
+    if novo_status == 'em_andamento' and not os.data_inicio:
+        os.data_inicio = timezone.now()
+    elif novo_status == 'concluida' and not os.data_conclusao:
+        os.data_conclusao = timezone.now()
+    
+    os.save()
+    
+    # Mensagem de sucesso
+    status_dict = dict(OrdemServico.STATUS)
+    messages.success(
+        request, 
+        f'Status alterado de "{status_dict.get(status_anterior, status_anterior)}" para "{os.get_status_display()}"'
+    )
+    return redirect('os_detail', pk=os_id)
+
+
+# ============================================
+# API PARA BUSCAR OS PELO NÚMERO (RELATÓRIOS)
 # ============================================
 
 def buscar_os_por_numero(request):

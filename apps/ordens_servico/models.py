@@ -21,6 +21,7 @@ class OrdemServico(models.Model):
         ('aguardando_cliente', 'Aguardando Cliente'),
         ('concluida', 'Concluída'),
         ('cancelada', 'Cancelada'),
+        ('paga', 'Paga'), # Adcionado para controle financeiro
     )
     
     numero_os = models.CharField(max_length=20, unique=True, editable=False)
