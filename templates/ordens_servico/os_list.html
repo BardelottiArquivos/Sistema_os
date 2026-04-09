@@ -15,25 +15,25 @@
     <div class="card-body">
         
         <!-- Filtros -->
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <form method="get" class="d-flex">
-                    <select name="status" class="form-select me-2" onchange="this.form.submit()">
-                        <option value="">Todos os status</option>
-                        <option value="aberta" {% if status_atual == 'aberta' %}selected{% endif %}>Aberta</option>
-                        <option value="em_andamento" {% if status_atual == 'em_andamento' %}selected{% endif %}>Em Andamento</option>
-                        <option value="aguardando_peca" {% if status_atual == 'aguardando_peca' %}selected{% endif %}>Aguardando Peça</option>
-                        <option value="aguardando_cliente" {% if status_atual == 'aguardando_cliente' %}selected{% endif %}>Aguardando Cliente</option>
-                        <option value="concluida" {% if status_atual == 'concluida' %}selected{% endif %}>Concluída</option>
-                        <option value="paga" {% if status_atual == 'paga' %}selected{% endif %}>Paga</option>
-                        <option value="cancelada" {% if status_atual == 'cancelada' %}selected{% endif %}>Cancelada</option>
-                    </select>
-                    <a href="{% url 'os_list' %}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-repeat"></i> Limpar
-                    </a>
-                </form>
-            </div>
-        </div>
+<div class="row mb-3">
+    <div class="col-md-4">
+        <form method="get" class="d-flex">
+            <select name="status" class="form-select me-2" onchange="this.form.submit()">
+                <option value="">Todos os status</option>
+                <option value="aberta" {% if request.GET.status == 'aberta' %}selected{% endif %}>Aberta</option>
+                <option value="em_andamento" {% if request.GET.status == 'em_andamento' %}selected{% endif %}>Em Andamento</option>
+                <option value="aguardando_peca" {% if request.GET.status == 'aguardando_peca' %}selected{% endif %}>Aguardando Peça</option>
+                <option value="aguardando_cliente" {% if request.GET.status == 'aguardando_cliente' %}selected{% endif %}>Aguardando Cliente</option>
+                <option value="concluida" {% if request.GET.status == 'concluida' %}selected{% endif %}>Concluída</option>
+                <option value="paga" {% if request.GET.status == 'paga' %}selected{% endif %}>Paga</option>
+                <option value="cancelada" {% if request.GET.status == 'cancelada' %}selected{% endif %}>Cancelada</option>
+            </select>
+            <a href="{% url 'os_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-repeat"></i> Limpar
+            </a>
+        </form>
+    </div>
+</div>
         
         <!-- Tabela de OS -->
         <div class="table-responsive">
