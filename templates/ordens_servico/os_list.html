@@ -4,39 +4,119 @@
 
 {% block content %}
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3>Ordens de Serviço</h3>
-        <a href="{% url 'os_create' %}" class="btn btn-primary"><i class="bi bi-plus"></i> Nova OS</a>
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h3 class="mb-2 mb-md-0">
+            <i class="bi bi-file-text"></i> Ordens de Serviço
+        </h3>
+        <a href="{% url 'os_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nova OS
+        </a>
     </div>
     <div class="card-body">
+        
+        <!-- Filtros -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <form method="get" class="d-flex">
+                    <select name="status" class="form-select me-2" onchange="this.form.submit()">
+                        <option value="">Todos os status</option>
+                        <option value="aberta" {% if status_atual == 'aberta' %}selected{% endif %}>Aberta</option>
+                        <option value="em_andamento" {% if status_atual == 'em_andamento' %}selected{% endif %}>Em Andamento</option>
+                        <option value="aguardando_peca" {% if status_atual == 'aguardando_peca' %}selected{% endif %}>Aguardando Peça</option>
+                        <option value="aguardando_cliente" {% if status_atual == 'aguardando_cliente' %}selected{% endif %}>Aguardando Cliente</option>
+                        <option value="concluida" {% if status_atual == 'concluida' %}selected{% endif %}>Concluída</option>
+                        <option value="paga" {% if status_atual == 'paga' %}selected{% endif %}>Paga</option>
+                        <option value="cancelada" {% if status_atual == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                    </select>
+                    <a href="{% url 'os_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-repeat"></i> Limpar
+                    </a>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tabela de OS -->
         <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr><th>Nº OS</th><th>Cliente</th><th>Título</th><th>Status</th><th>Prioridade</th><th>Data</th><th>Valor</th><th>Ações</th>  </>
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nº OS</th>
+                        <th>Cliente</th>
+                        <th>Título</th>
+                        <th>Técnico</th>
+                        <th>Status</th>
+                        <th>Prioridade</th>
+                        <th>Data</th>
+                        <th>Valor</th>
+                        <th>Ações</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {% for os in ordens %}
                     <tr>
-                        <td>{{ os.numero_os }}</td>
-                        <td>{{ os.cliente.nome_razao_social }}</td>
-                        <td>{{ os.titulo|truncatechars:30 }}</td>
-                        <td><span class="badge bg-{{ os.status }}">{{ os.get_status_display }}</span></td>
-                        <td><span class="badge bg-{% if os.prioridade == 'urgente' %}danger{% elif os.prioridade == 'alta' %}warning{% else %}secondary{% endif %}">{{ os.get_prioridade_display }}</span></td>
-                        <td>{{ os.data_abertura|date:"d/m/Y" }}</td>
-                        <td>R$ {{ os.valor_total|floatformat:2 }}</td>
                         <td>
-                            <a href="{% url 'os_detail' os.pk %}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a>
-                            <a href="{% url 'os_update' os.pk %}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
-                            <a href="{% url 'relatorios:os_pdf' os.pk %}" class="btn btn-sm btn-primary" target="_blank"><i class="bi bi-printer"></i></a>
+                            <strong>{{ os.numero_os }}</strong>
+                        </td>
+                        <td>{{ os.cliente.nome_razao_social|truncatechars:30 }}</td>
+                        <td>{{ os.titulo|truncatechars:30 }}</td>
+                        <td>{{ os.tecnico_responsavel.get_full_name|default:os.tecnico_responsavel.username }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if os.status == 'aberta' %}bg-secondary
+                                {% elif os.status == 'em_andamento' %}bg-warning text-dark
+                                {% elif os.status == 'aguardando_peca' %}bg-info
+                                {% elif os.status == 'aguardando_cliente' %}bg-info
+                                {% elif os.status == 'concluida' %}bg-success
+                                {% elif os.status == 'paga' %}bg-primary
+                                {% else %}bg-danger{% endif %}">
+                                {{ os.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if os.prioridade == 'urgente' %}bg-danger
+                                {% elif os.prioridade == 'alta' %}bg-warning text-dark
+                                {% else %}bg-secondary{% endif %}">
+                                {{ os.get_prioridade_display }}
+                            </span>
+                        </td>
+                        <td>{{ os.data_abertura|date:"d/m/Y" }}</td>
+                        <td class="text-end">R$ {{ os.valor_total|floatformat:2 }}</td>
+                        <td class="text-nowrap">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'os_detail' os.pk %}" class="btn btn-info" title="Visualizar">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'os_update' os.pk %}" class="btn btn-warning" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'relatorios:os_pdf' os.pk %}" class="btn btn-primary" title="Imprimir" target="_blank">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                                <a href="{% url 'os_delete' os.pk %}" class="btn btn-danger" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir esta OS?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="8" class="text-center">Nenhuma ordem de serviço cadastrada</td></tr>
+                    <tr>
+                        <td colspan="9" class="text-center py-5">
+                            <i class="bi bi-inbox fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">Nenhuma ordem de serviço cadastrada.</p>
+                            <a href="{% url 'os_create' %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle"></i> Criar primeira OS
+                            </a>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        
+        <!-- Paginação -->
         {% include 'includes/pagination.html' %}
+        
     </div>
 </div>
 {% endblock %}

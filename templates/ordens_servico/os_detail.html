@@ -4,25 +4,99 @@
 
 {% block content %}
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3>Ordem de Serviço #{{ os.numero_os }}</h3>
-        <div>
-            <a href="{% url 'os_update' os.pk %}" class="btn btn-warning">Editar</a>
-            <a href="{% url 'relatorios:os_pdf' os.pk %}" class="btn btn-primary" target="_blank"><i class="bi bi-printer"></i> Imprimir</a>
-            <a href="{% url 'os_list' %}" class="btn btn-secondary">Voltar</a>
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h3 class="mb-2 mb-md-0">Ordem de Serviço #{{ os.numero_os }}</h3>
+        
+        <!-- Botões de ação -->
+        <div class="btn-group mt-2 mt-md-0" role="group">
+            
+            <!-- Botões de status - visíveis conforme o status atual -->
+            
+            {% if os.status == 'aberta' %}
+                <a href="{% url 'mudar_status' os.pk 'em_andamento' %}" class="btn btn-sm btn-warning">
+                    <i class="bi bi-play-circle"></i> Iniciar
+                </a>
+            {% endif %}
+            
+            {% if os.status == 'em_andamento' %}
+                <a href="{% url 'mudar_status' os.pk 'aguardando_peca' %}" class="btn btn-sm btn-info">
+                    <i class="bi bi-box"></i> Aguardar Peça
+                </a>
+                <a href="{% url 'mudar_status' os.pk 'aguardando_cliente' %}" class="btn btn-sm btn-secondary">
+                    <i class="bi bi-chat"></i> Aguardar Cliente
+                </a>
+                <a href="{% url 'mudar_status' os.pk 'concluida' %}" class="btn btn-sm btn-success">
+                    <i class="bi bi-check-circle"></i> Concluir
+                </a>
+            {% endif %}
+            
+            {% if os.status == 'aguardando_peca' %}
+                <a href="{% url 'mudar_status' os.pk 'em_andamento' %}" class="btn btn-sm btn-warning">
+                    <i class="bi bi-arrow-repeat"></i> Peça Chegou
+                </a>
+            {% endif %}
+            
+            {% if os.status == 'aguardando_cliente' %}
+                <a href="{% url 'mudar_status' os.pk 'em_andamento' %}" class="btn btn-sm btn-warning">
+                    <i class="bi bi-check-lg"></i> Autorizado
+                </a>
+            {% endif %}
+            
+            {% if os.status == 'concluida' %}
+                <a href="{% url 'mudar_status' os.pk 'paga' %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-currency-dollar"></i> Marcar como Paga
+                </a>
+            {% endif %}
+            
+            {% if os.status != 'cancelada' and os.status != 'paga' and os.status != 'concluida' %}
+                <a href="{% url 'mudar_status' os.pk 'cancelada' %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja cancelar esta OS?')">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            {% endif %}
+            
+            <!-- Botões gerais -->
+            <a href="{% url 'os_update' os.pk %}" class="btn btn-sm btn-warning">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+            <a href="{% url 'relatorios:os_pdf' os.pk %}" class="btn btn-sm btn-primary" target="_blank">
+                <i class="bi bi-printer"></i> Imprimir
+            </a>
+            <a href="{% url 'os_list' %}" class="btn btn-sm btn-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
         </div>
     </div>
+    
     <div class="card-body">
+        <!-- Informações principais -->
         <div class="row">
             <div class="col-md-6">
-                <p><strong>Cliente:</strong> <a href="{% url 'cliente_detail' os.cliente.pk %}">{{ os.cliente.nome_razao_social }}</a></p>
-                <p><strong>Computador:</strong> {% if os.computador %}<a href="{% url 'computador_detail' os.computador.pk %}">{{ os.computador.nome_identificacao }}</a>{% else %}-{% endif %}</p>
-                <p><strong>Técnico:</strong> {{ os.tecnico_responsavel.get_full_name|default:os.tecnico_responsavel.username }}</p>
-                <p><strong>Status:</strong> <span class="badge bg-{{ os.status }}">{{ os.get_status_display }}</span></p>
-                <p><strong>Prioridade:</strong> <span class="badge bg-{% if os.prioridade == 'urgente' %}danger{% elif os.prioridade == 'alta' %}warning{% else %}secondary{% endif %}">{{ os.get_prioridade_display }}</span></p>
+                <p><strong>Cliente:</strong> 
+                    <a href="{% url 'cliente_detail' os.cliente.pk %}">{{ os.cliente.nome_razao_social }}</a>
+                </p>
+                <p><strong>Computador:</strong> 
+                    {% if os.computador %}
+                        <a href="{% url 'computador_detail' os.computador.pk %}">{{ os.computador.nome_identificacao }}</a>
+                    {% else %}
+                        <span class="text-muted">Não informado</span>
+                    {% endif %}
+                </p>
+                <p><strong>Técnico Responsável:</strong> 
+                    {{ os.tecnico_responsavel.get_full_name|default:os.tecnico_responsavel.username }}
+                </p>
+                <p><strong>Prioridade:</strong> 
+                    <span class="badge bg-{% if os.prioridade == 'urgente' %}danger{% elif os.prioridade == 'alta' %}warning{% else %}secondary{% endif %}">
+                        {{ os.get_prioridade_display }}
+                    </span>
+                </p>
             </div>
             <div class="col-md-6">
-                <p><strong>Data Abertura:</strong> {{ os.data_abertura|date:"d/m/Y H:i" }}</p>
+                <p><strong>Status:</strong> 
+                    <span class="badge bg-{% if os.status == 'aberta' %}secondary{% elif os.status == 'em_andamento' %}warning{% elif os.status == 'aguardando_peca' %}info{% elif os.status == 'aguardando_cliente' %}info{% elif os.status == 'concluida' %}success{% elif os.status == 'paga' %}primary{% else %}danger{% endif %}">
+                        {{ os.get_status_display }}
+                    </span>
+                </p>
+                <p><strong>Data de Abertura:</strong> {{ os.data_abertura|date:"d/m/Y H:i" }}</p>
                 <p><strong>Data Previsão:</strong> {{ os.data_previsao|date:"d/m/Y"|default:"-" }}</p>
                 <p><strong>Data Início:</strong> {{ os.data_inicio|date:"d/m/Y H:i"|default:"-" }}</p>
                 <p><strong>Data Conclusão:</strong> {{ os.data_conclusao|date:"d/m/Y H:i"|default:"-" }}</p>
@@ -30,45 +104,100 @@
         </div>
         
         <hr>
-        <h5>Problema Relatado</h5>
-        <p>{{ os.descricao_problema|linebreaks }}</p>
         
+        <!-- Descrição do problema -->
+        <h5><i class="bi bi-exclamation-triangle"></i> Problema Relatado</h5>
+        <div class="p-3 bg-light rounded mb-3">
+            {{ os.descricao_problema|linebreaks }}
+        </div>
+        
+        <!-- Solução aplicada (se houver) -->
         {% if os.solucao_aplicada %}
-        <h5>Solução Aplicada</h5>
-        <p>{{ os.solucao_aplicada|linebreaks }}</p>
+            <h5><i class="bi bi-check-circle"></i> Solução Aplicada</h5>
+            <div class="p-3 bg-light rounded mb-3">
+                {{ os.solucao_aplicada|linebreaks }}
+            </div>
+        {% endif %}
+        
+        <!-- Observações (se houver) -->
+        {% if os.observacoes %}
+            <h5><i class="bi bi-chat-text"></i> Observações</h5>
+            <div class="p-3 bg-light rounded mb-3">
+                {{ os.observacoes|linebreaks }}
+            </div>
         {% endif %}
         
         <hr>
-        <h5>Valores</h5>
+        
+        <!-- Valores -->
+        <h5><i class="bi bi-calculator"></i> Valores</h5>
         <div class="row">
-            <div class="col-md-4"><strong>Mão de Obra:</strong> R$ {{ os.valor_mao_obra|floatformat:2 }}</div>
-            <div class="col-md-4"><strong>Peças:</strong> R$ {{ os.valor_pecas|floatformat:2 }}</div>
-            <div class="col-md-4"><strong>Desconto:</strong> R$ {{ os.desconto|floatformat:2 }}</div>
-        </div>
-        <div class="row mt-2">
-            <div class="col-md-12"><h4>Total: R$ {{ os.valor_total|floatformat:2 }}</h4></div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card bg-light mb-2">
+                    <div class="card-body text-center">
+                        <strong>Mão de Obra</strong><br>
+                        R$ {{ os.valor_mao_obra|floatformat:2 }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card bg-light mb-2">
+                    <div class="card-body text-center">
+                        <strong>Peças</strong><br>
+                        R$ {{ os.valor_pecas|floatformat:2 }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card bg-light mb-2">
+                    <div class="card-body text-center">
+                        <strong>Desconto</strong><br>
+                        R$ {{ os.desconto|floatformat:2 }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card bg-success text-white mb-2">
+                    <div class="card-body text-center">
+                        <strong>Total</strong><br>
+                        R$ {{ os.valor_total|floatformat:2 }}
+                    </div>
+                </div>
+            </div>
         </div>
         
+        <!-- Peças utilizadas (se houver) -->
         {% if os.itens.all %}
-        <hr>
-        <h5>Peças Utilizadas</h5>
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <thead>
-                    <tr><th>Descrição</th><th>Quantidade</th><th>Valor Unitário</th><th>Valor Total</th></tr>
-                </thead>
-                <tbody>
-                    {% for item in os.itens.all %}
-                    <tr>
-                        <td>{{ item.descricao }}</td>
-                        <td>{{ item.quantidade }}</td>
-                        <td>R$ {{ item.valor_unitario|floatformat:2 }}</td>
-                        <td>R$ {{ item.valor_total|floatformat:2 }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            <hr>
+            <h5><i class="bi bi-box-seam"></i> Peças Utilizadas</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Descrição</th>
+                            <th class="text-center">Quantidade</th>
+                            <th class="text-end">Valor Unitário</th>
+                            <th class="text-end">Valor Total</th>
+                         </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in os.itens.all %}
+                        <tr>
+                            <td>{{ item.descricao }}</td>
+                            <td class="text-center">{{ item.quantidade }}</td>
+                            <td class="text-end">R$ {{ item.valor_unitario|floatformat:2 }}</td>
+                            <td class="text-end">R$ {{ item.valor_total|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Total em Peças:</strong></td>
+                            <td class="text-end"><strong>R$ {{ os.valor_pecas|floatformat:2 }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         {% endif %}
     </div>
 </div>
