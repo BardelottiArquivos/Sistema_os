@@ -71,6 +71,7 @@ class OSListView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['status_atual'] = self.status_filtro  # ← ADICIONE ESTA LINHA
         context['status_opcoes'] = OrdemServico.STATUS
         context['status_atual'] = self.request.GET.get('status', '')
         return context
