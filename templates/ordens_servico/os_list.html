@@ -15,25 +15,25 @@
     <div class="card-body">
         
         <!-- Filtros -->
-<div class="row mb-3">
-    <div class="col-md-4">
-        <form method="get" class="d-flex">
-            <select name="status" class="form-select me-2" onchange="this.form.submit()">
-                <option value="">Todos os status</option>
-                <option value="aberta" {% if request.GET.status == 'aberta' %}selected{% endif %}>Aberta</option>
-                <option value="em_andamento" {% if request.GET.status == 'em_andamento' %}selected{% endif %}>Em Andamento</option>
-                <option value="aguardando_peca" {% if request.GET.status == 'aguardando_peca' %}selected{% endif %}>Aguardando Peça</option>
-                <option value="aguardando_cliente" {% if request.GET.status == 'aguardando_cliente' %}selected{% endif %}>Aguardando Cliente</option>
-                <option value="concluida" {% if request.GET.status == 'concluida' %}selected{% endif %}>Concluída</option>
-                <option value="paga" {% if request.GET.status == 'paga' %}selected{% endif %}>Paga</option>
-                <option value="cancelada" {% if request.GET.status == 'cancelada' %}selected{% endif %}>Cancelada</option>
-            </select>
-            <a href="{% url 'os_list' %}" class="btn btn-secondary">
-                <i class="bi bi-arrow-repeat"></i> Limpar
-            </a>
-        </form>
-    </div>
-</div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <form method="get" class="d-flex">
+                    <select name="status" class="form-select me-2" onchange="this.form.submit()">
+                        <option value="">Todos os status</option>
+                        <option value="aberta" {% if request.GET.status == 'aberta' %}selected{% endif %}>Aberta</option>
+                        <option value="em_andamento" {% if request.GET.status == 'em_andamento' %}selected{% endif %}>Em Andamento</option>
+                        <option value="aguardando_peca" {% if request.GET.status == 'aguardando_peca' %}selected{% endif %}>Aguardando Peça</option>
+                        <option value="aguardando_cliente" {% if request.GET.status == 'aguardando_cliente' %}selected{% endif %}>Aguardando Cliente</option>
+                        <option value="concluida" {% if request.GET.status == 'concluida' %}selected{% endif %}>Concluída</option>
+                        <option value="paga" {% if request.GET.status == 'paga' %}selected{% endif %}>Paga</option>
+                        <option value="cancelada" {% if request.GET.status == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                    </select>
+                    <a href="{% url 'os_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-repeat"></i> Limpar
+                    </a>
+                </form>
+            </div>
+        </div>
         
         <!-- Tabela de OS -->
         <div class="table-responsive">
@@ -54,9 +54,7 @@
                 <tbody>
                     {% for os in ordens %}
                     <tr>
-                        <td>
-                            <strong>{{ os.numero_os }}</strong>
-                        </td>
+                        <td><strong>{{ os.numero_os }}</strong></td>
                         <td>{{ os.cliente.nome_razao_social|truncatechars:30 }}</td>
                         <td>{{ os.titulo|truncatechars:30 }}</td>
                         <td>{{ os.tecnico_responsavel.get_full_name|default:os.tecnico_responsavel.username }}</td>
@@ -102,15 +100,7 @@
                     {% empty %}
                     <tr>
                         <td colspan="9" class="text-center py-5">
-                           <!--{% if request.GET.status %}
-                                <i class="bi bi-funnel fs-1 text-muted"></i>
-                                <p class="text-muted mt-2">Nenhuma OS encontrada com o filtro selecionado.</p>
-                            {% else %}
-                                <i class="bi bi-inbox fs-1 text-muted"></i>
-                                <p class="text-muted mt-2">Nenhuma ordem de serviço cadastrada.</p>
-                                <a href="{% url 'os_create' %}" class="btn btn-primary btn-sm">
-                                <i class="bi bi-plus-circle"></i> Criar primeira OS
-                            </a> -->
+                            <!-- Nenhuma mensagem será exibida aqui -->
                         </td>
                     </tr>
                     {% endfor %}
