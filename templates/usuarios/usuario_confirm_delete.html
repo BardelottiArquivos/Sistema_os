@@ -8,12 +8,23 @@
         <h3>Confirmar Exclusão</h3>
     </div>
     <div class="card-body">
-        <p>Tem certeza que deseja excluir <strong>{{ usuario.get_full_name|default:usuario.username }}</strong>?</p>
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Excluir</button>
-            <a href="{% url 'usuario_list' %}" class="btn btn-secondary">Cancelar</a>
-        </form>
+        <p class="lead">Tem certeza que deseja excluir <strong>{{ usuario.get_full_name|default:usuario.username }}</strong>?</p>
+        
+        {% if usuario.ordens_tecnico.all %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Atenção!</strong> Este usuário possui {{ usuario.ordens_tecnico.count }} ordem(ns) de serviço vinculada(s).
+                <br>Não é possível excluir enquanto houver OS vinculadas.
+            </div>
+            <a href="{% url 'usuario_list' %}" class="btn btn-secondary">Voltar</a>
+        {% else %}
+            <p class="text-danger">⚠️ Esta ação não poderá ser desfeita!</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Sim, excluir</button>
+                <a href="{% url 'usuario_list' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

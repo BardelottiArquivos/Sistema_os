@@ -12,7 +12,9 @@
             </div>
             <div class="card-body">
                 
-                <!-- Cards de Estatísticas -->
+                <!-- ============================================ -->
+                <!-- CARDS DE ESTATÍSTICAS -->
+                <!-- ============================================ -->
                 <div class="row mb-4">
                     <div class="col-md-3">
                         <div class="card text-white bg-primary">
@@ -52,7 +54,9 @@
                     </div>
                 </div>
                 
-                <!-- Gráficos -->
+                <!-- ============================================ -->
+                <!-- GRÁFICOS -->
+                <!-- ============================================ -->
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <div class="card">
@@ -76,7 +80,9 @@
                     </div>
                 </div>
                 
-                <!-- Gráfico de Faturamento Mensal -->
+                <!-- ============================================ -->
+                <!-- GRÁFICO DE FATURAMENTO MENSAL -->
+                <!-- ============================================ -->
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="card">
@@ -90,7 +96,9 @@
                     </div>
                 </div>
                 
-                <!-- Últimas OS -->
+                <!-- ============================================ -->
+                <!-- ÚLTIMAS ORDENS DE SERVIÇO -->
+                <!-- ============================================ -->
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="card">
@@ -99,21 +107,43 @@
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr><th>Nº OS</th><th>Cliente</th><th>Valor</th><th>Status</th><th>Data</th></tr>
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Nº OS</th>
+                                                <th>Cliente</th>
+                                                <th>Valor</th>
+                                                <th>Status</th>
+                                                <th>Data</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             {% for os in os_recentes %}
                                             <tr>
-                                                <td>{{ os.numero_os }}</td>
-                                                <td>{{ os.cliente.nome_razao_social|truncatechars:30 }}</td>
-                                                <td>R$ {{ os.valor_total|floatformat:2 }}</td>
-                                                <td><span class="badge bg-{{ status_cores|get_item:os.status }}">{{ os.get_status_display }}</span></td>
-                                                <td>{{ os.data_abertura|date:"d/m/Y" }}</td>
+                                                <td><strong>{{ os.numero_os }}</strong></td>
+                                                <td>{{ os.cliente.nome_razao_social|truncatechars:30 }}</a></td>
+                                                <td class="text-end">R$ {{ os.valor_total|floatformat:2 }}</a></td>
+                                                <td>
+                                                    <span class="badge 
+                                                        {% if os.status == 'aberta' %}bg-secondary
+                                                        {% elif os.status == 'em_andamento' %}bg-warning text-dark
+                                                        {% elif os.status == 'aguardando_peca' %}bg-info
+                                                        {% elif os.status == 'aguardando_cliente' %}bg-info
+                                                        {% elif os.status == 'concluida' %}bg-success
+                                                        {% elif os.status == 'paga' %}bg-primary
+                                                        {% else %}bg-danger{% endif %}">
+                                                        {{ os.get_status_display }}
+                                                    </span>
+                                                </a></td>
+                                                <td>{{ os.data_abertura|date:"d/m/Y" }}</a></td>
                                             </tr>
                                             {% empty %}
-                                            <tr><td colspan="5">Nenhuma OS cadastrada</td></tr>
+                                            <tr>
+                                                <td colspan="5" class="text-center py-4">
+                                                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                                                    <p class="text-muted mt-2">Nenhuma ordem de serviço cadastrada</p>
+                                                </a></td>
+                                            </tr>
                                             {% endfor %}
                                         </tbody>
                                     </table>
@@ -123,7 +153,9 @@
                     </div>
                 </div>
                 
-                <!-- Formulários de Relatórios PDF -->
+                <!-- ============================================ -->
+                <!-- FORMULÁRIOS DE RELATÓRIOS PDF -->
+                <!-- ============================================ -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="card">
@@ -134,6 +166,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Número da OS</label>
                                     <input type="text" id="os_numero" class="form-control" placeholder="Ex: 2026/0001">
+                                    <small class="text-muted">Digite o número da OS no formato ANO/SEQUENCIAL</small>
                                 </div>
                                 <button type="button" class="btn btn-primary" onclick="gerarRelatorioOS()">
                                     <i class="bi bi-file-pdf"></i> Gerar PDF
@@ -161,7 +194,7 @@
                                     <div class="mt-3">
                                         <label class="form-label">Status</label>
                                         <select name="status" class="form-select">
-                                            <option value="">Todos</option>
+                                            <option value="">Todos os status</option>
                                             <option value="aberta">Aberta</option>
                                             <option value="em_andamento">Em Andamento</option>
                                             <option value="aguardando_peca">Aguardando Peça</option>
@@ -171,7 +204,7 @@
                                             <option value="cancelada">Cancelada</option>
                                         </select>
                                     </div>
-                                    <button type="submit" class="btn btn-success mt-3">
+                                    <button type="submit" class="btn btn-success mt-3 w-100">
                                         <i class="bi bi-file-pdf"></i> Gerar PDF
                                     </button>
                                 </form>
@@ -189,56 +222,132 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Gráfico de Status
-const statusCtx = document.getElementById('statusChart').getContext('2d');
-const statusData = {
-    labels: [{% for item in os_por_status %}'{{ item.get_status_display }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
-    datasets: [{
-        data: [{% for item in os_por_status %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}],
-        backgroundColor: ['#6c757d', '#ffc107', '#0dcaf0', '#0dcaf0', '#198754', '#0d6efd', '#dc3545'],
-        borderWidth: 0
-    }]
-};
-new Chart(statusCtx, { type: 'pie', data: statusData, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
-
-// Gráfico de Prioridade
-const prioridadeCtx = document.getElementById('prioridadeChart').getContext('2d');
-const prioridadeData = {
-    labels: [{% for item in os_por_prioridade %}'{{ item.get_prioridade_display }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
-    datasets: [{
-        data: [{% for item in os_por_prioridade %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}],
-        backgroundColor: ['#198754', '#0dcaf0', '#ffc107', '#dc3545'],
-        borderWidth: 0
-    }]
-};
-new Chart(prioridadeCtx, { type: 'doughnut', data: prioridadeData, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
-
-// Gráfico de Faturamento Mensal
-const faturamentoCtx = document.getElementById('faturamentoChart').getContext('2d');
-new Chart(faturamentoCtx, {
-    type: 'line',
-    data: {
-        labels: {{ meses|safe }},
-        datasets: [{
-            label: 'Faturamento (R$)',
-            data: {{ valores|safe }},
-            borderColor: '#0d6efd',
-            backgroundColor: 'rgba(13, 110, 253, 0.1)',
-            fill: true,
-            tension: 0.4
-        }]
-    },
-    options: { responsive: true, plugins: { tooltip: { callbacks: { label: (ctx) => `R$ ${ctx.raw.toFixed(2)}` } } } }
-});
-
-// Função para gerar relatório por OS
-function gerarRelatorioOS() {
-    const osNumero = document.getElementById('os_numero').value;
-    if (!osNumero) { alert('Digite o número da OS'); return; }
-    fetch(`/api/buscar-os/?numero=${osNumero}`)
-        .then(response => response.json())
-        .then(data => { if (data.id) { window.open(`/relatorios/os/${data.id}/pdf/`, '_blank'); } else { alert('OS não encontrada'); } })
-        .catch(error => { console.error('Erro:', error); alert('Erro ao buscar OS'); });
-}
+    // ============================================
+    // GRÁFICO DE STATUS (PIZZA)
+    // ============================================
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusLabels = [{% for item in os_por_status %}'{{ item.get_status_display }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+    const statusData = [{% for item in os_por_status %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+    
+    new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusData,
+                backgroundColor: ['#6c757d', '#ffc107', '#0dcaf0', '#0dcaf0', '#198754', '#0d6efd', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} OS` } }
+            }
+        }
+    });
+    
+    // ============================================
+    // GRÁFICO DE PRIORIDADE (DONUT)
+    // ============================================
+    const prioridadeCtx = document.getElementById('prioridadeChart').getContext('2d');
+    const prioridadeLabels = [{% for item in os_por_prioridade %}'{{ item.get_prioridade_display }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+    const prioridadeData = [{% for item in os_por_prioridade %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+    
+    new Chart(prioridadeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: prioridadeLabels,
+            datasets: [{
+                data: prioridadeData,
+                backgroundColor: ['#198754', '#0dcaf0', '#ffc107', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} OS` } }
+            }
+        }
+    });
+    
+    // ============================================
+    // GRÁFICO DE FATURAMENTO MENSAL (LINHA)
+    // ============================================
+    const faturamentoCtx = document.getElementById('faturamentoChart').getContext('2d');
+    
+    new Chart(faturamentoCtx, {
+        type: 'line',
+        data: {
+            labels: {{ meses|safe }},
+            datasets: [{
+                label: 'Faturamento (R$)',
+                data: {{ valores|safe }},
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#0d6efd',
+                pointBorderColor: '#fff',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `R$ ${ctx.raw.toFixed(2)}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => `R$ ${value.toFixed(2)}`
+                    }
+                }
+            }
+        }
+    });
+    
+    // ============================================
+    // FUNÇÃO PARA GERAR RELATÓRIO POR OS
+    // ============================================
+    function gerarRelatorioOS() {
+        const osNumero = document.getElementById('os_numero').value;
+        
+        if (!osNumero) {
+            alert('Digite o número da OS');
+            return;
+        }
+        
+        // Validar formato (ANO/SEQUENCIAL)
+        if (!/^\d{4}\/\d{4}$/.test(osNumero)) {
+            alert('Formato inválido. Use o formato ANO/SEQUENCIAL (ex: 2026/0001)');
+            return;
+        }
+        
+        // Buscar o ID da OS pelo número
+        fetch(`/api/buscar-os/?numero=${osNumero}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.id) {
+                    window.open(`/relatorios/os/${data.id}/pdf/`, '_blank');
+                } else {
+                    alert('OS não encontrada. Verifique o número digitado.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao buscar OS. Tente novamente.');
+            });
+    }
 </script>
 {% endblock %}
