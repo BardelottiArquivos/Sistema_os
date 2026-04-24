@@ -1,218 +1,140 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Relatórios e Estatísticas{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="bi bi-graph-up"></i> Dashboard de Relatórios</h4>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Visão Geral do Sistema</li>
+    </ol>
+
+    <!-- Cards de Resumo -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <i class="bi bi-files me-2"></i> Total de OS
+                    <h2>{{ total_os }}</h2>
+                </div>
             </div>
-            <div class="card-body">
-                
-                <!-- ============================================ -->
-                <!-- CARDS DE ESTATÍSTICAS -->
-                <!-- ============================================ -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card text-white bg-primary">
-                            <div class="card-body text-center">
-                                <i class="bi bi-file-text fs-1"></i>
-                                <h2>{{ total_os }}</h2>
-                                <p class="mb-0">Total de OS</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-white bg-success">
-                            <div class="card-body text-center">
-                                <i class="bi bi-people fs-1"></i>
-                                <h2>{{ total_clientes }}</h2>
-                                <p class="mb-0">Clientes</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-white bg-info">
-                            <div class="card-body text-center">
-                                <i class="bi bi-pc fs-1"></i>
-                                <h2>{{ total_computadores }}</h2>
-                                <p class="mb-0">Computadores</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-white bg-warning">
-                            <div class="card-body text-center">
-                                <i class="bi bi-currency-dollar fs-1"></i>
-                                <h2>R$ {{ faturamento_total|floatformat:2 }}</h2>
-                                <p class="mb-0">Faturamento Total</p>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <i class="bi bi-hourglass-split me-2"></i> Em Aberto/Andamento
+                    <h2>{{ total_os_abertas|add:total_os_andamento }}</h2>
                 </div>
-                
-                <!-- ============================================ -->
-                <!-- GRÁFICOS -->
-                <!-- ============================================ -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5><i class="bi bi-pie-chart"></i> OS por Status</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="statusChart" height="250"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5><i class="bi bi-bar-chart"></i> OS por Prioridade</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="prioridadeChart" height="250"></canvas>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <i class="bi bi-check-circle me-2"></i> Concluídas
+                    <h2>{{ total_os_concluidas }}</h2>
                 </div>
-                
-                <!-- ============================================ -->
-                <!-- GRÁFICO DE FATURAMENTO MENSAL -->
-                <!-- ============================================ -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5><i class="bi bi-graph-up"></i> Faturamento Mensal</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="faturamentoChart" height="300"></canvas>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">
+                    <i class="bi bi-currency-dollar me-2"></i> Faturamento Total
+                    <h2>R$ {{ faturamento_data_json|floatformat:2 }}</h2>
                 </div>
-                
-                <!-- ============================================ -->
-                <!-- ÚLTIMAS ORDENS DE SERVIÇO -->
-                <!-- ============================================ -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5><i class="bi bi-clock-history"></i> Últimas Ordens de Serviço</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-hover">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th>Nº OS</th>
-                                                <th>Cliente</th>
-                                                <th>Valor</th>
-                                                <th>Status</th>
-                                                <th>Data</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for os in os_recentes %}
-                                            <tr>
-                                                <td><strong>{{ os.numero_os }}</strong></td>
-                                                <td>{{ os.cliente.nome_razao_social|truncatechars:30 }}</td>
-                                                <td class="text-end">R$ {{ os.valor_total|floatformat:2 }}</td>
-                                                <td>
-                                                    <span class="badge 
-                                                        {% if os.status == 'aberta' %}bg-secondary
-                                                        {% elif os.status == 'em_andamento' %}bg-warning text-dark
-                                                        {% elif os.status == 'aguardando_peca' %}bg-info
-                                                        {% elif os.status == 'aguardando_cliente' %}bg-info
-                                                        {% elif os.status == 'concluida' %}bg-success
-                                                        {% elif os.status == 'paga' %}bg-primary
-                                                        {% else %}bg-danger{% endif %}">
-                                                        {{ os.get_status_display }}
-                                                    </span>
-                                                </td>
-                                                <td>{{ os.data_abertura|date:"d/m/Y" }}</td>
-                                            </tr>
-                                            {% empty %}
-                                            <tr>
-                                                <td colspan="5" class="text-center py-4">
-                                                    <i class="bi bi-inbox fs-1 text-muted"></i>
-                                                    <p class="text-muted mt-2">Nenhuma ordem de serviço cadastrada</p>
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos de Status e Prioridade -->
+    <div class="row">
+        <div class="col-xl-6 col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie me-1"></i>
+                    OS por Status
                 </div>
-                
-                <!-- ============================================ -->
-                <!-- FORMULÁRIOS DE RELATÓRIOS PDF -->
-                <!-- ============================================ -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0"><i class="bi bi-file-pdf"></i> Relatório por OS</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label">Número da OS</label>
-                                    <input type="text" id="os_numero" class="form-control" placeholder="Ex: 2026/0001">
-                                    <small class="text-muted">Digite o número da OS no formato ANO/SEQUENCIAL</small>
-                                </div>
-                                <button type="button" class="btn btn-primary" onclick="gerarRelatorioOS()">
-                                    <i class="bi bi-file-pdf"></i> Gerar PDF
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header bg-success text-white">
-                                <h5 class="mb-0"><i class="bi bi-calendar-range"></i> Relatório por Período</h5>
-                            </div>
-                            <div class="card-body">
-                                <form method="get" action="{% url 'relatorios:periodo_pdf' %}">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Data Início</label>
-                                            <input type="date" name="data_inicio" class="form-control" value="{{ ultimo_mes|date:'Y-m-d' }}">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Data Fim</label>
-                                            <input type="date" name="data_fim" class="form-control" value="{{ hoje|date:'Y-m-d' }}">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <label class="form-label">Status</label>
-                                        <select name="status" class="form-select">
-                                            <option value="">Todos os status</option>
-                                            <option value="aberta">Aberta</option>
-                                            <option value="em_andamento">Em Andamento</option>
-                                            <option value="aguardando_peca">Aguardando Peça</option>
-                                            <option value="aguardando_cliente">Aguardando Cliente</option>
-                                            <option value="concluida">Concluída</option>
-                                            <option value="paga">Paga</option>
-                                            <option value="cancelada">Cancelada</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="btn btn-success mt-3 w-100">
-                                        <i class="bi bi-file-pdf"></i> Gerar PDF
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                <div class="card-body">
+                    <canvas id="osStatusChart" width="100%" height="400"></canvas>
                 </div>
-                
+            </div>
+        </div>
+        <div class="col-xl-6 col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-donut me-1"></i>
+                    OS por Prioridade
+                </div>
+                <div class="card-body">
+                    <canvas id="osPrioridadeChart" width="100%" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de Faturamento Mensal -->
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-line me-1"></i>
+                    Faturamento Mensal (R$)
+                </div>
+                <div class="card-body">
+                    <canvas id="faturamentoChart" width="100%" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Últimas Ordens de Serviço -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Últimas Ordens de Serviço
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Nº OS</th>
+                            <th>Cliente</th>
+                            <th>Data Abertura</th>
+                            <th>Status</th>
+                            <th>Valor (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for os in ultimas_os %}
+                        <tr>
+                            <td>{{ os.numero_os }}</a></td>
+                            <td>{{ os.cliente.nome_razao_social }}</a></td>
+                            <td>{{ os.data_abertura|date:"d/m/Y" }}</a></td>
+                            <td>
+                                <span class="badge 
+                                    {% if os.status == 'aberta' %}bg-secondary
+                                    {% elif os.status == 'em_andamento' %}bg-warning text-dark
+                                    {% elif os.status == 'aguardando_peca' %}bg-info
+                                    {% elif os.status == 'aguardando_cliente' %}bg-info
+                                    {% elif os.status == 'concluida' %}bg-success
+                                    {% elif os.status == 'paga' %}bg-primary
+                                    {% else %}bg-danger{% endif %}">
+                                    {{ os.get_status_display }}
+                                </span>
+                             </a></td>
+                            <td class="text-end">R$ {{ os.valor_total|floatformat:2 }}</a></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <i class="bi bi-inbox fs-1 text-muted"></i>
+                                <p class="text-muted mt-2">Nenhuma ordem de serviço cadastrada</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -220,134 +142,144 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    // ============================================
-    // GRÁFICO DE STATUS (PIZZA)
-    // ============================================
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    const statusLabels = [{% for item in os_por_status %}'{{ item.get_status_display }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
-    const statusData = [{% for item in os_por_status %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}];
-    
-    new Chart(statusCtx, {
-        type: 'pie',
-        data: {
-            labels: statusLabels,
-            datasets: [{
-                data: statusData,
-                backgroundColor: ['#6c757d', '#ffc107', '#0dcaf0', '#0dcaf0', '#198754', '#0d6efd', '#dc3545'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' },
-                tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} OS` } }
-            }
-        }
-    });
-    
-    // ============================================
-    // GRÁFICO DE PRIORIDADE (DONUT)
-    // ============================================
-    const prioridadeCtx = document.getElementById('prioridadeChart').getContext('2d');
-    const prioridadeLabels = [{% for item in os_por_prioridade %}'{{ item.get_prioridade_display }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
-    const prioridadeData = [{% for item in os_por_prioridade %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}];
-    
-    new Chart(prioridadeCtx, {
-        type: 'doughnut',
-        data: {
-            labels: prioridadeLabels,
-            datasets: [{
-                data: prioridadeData,
-                backgroundColor: ['#198754', '#0dcaf0', '#ffc107', '#dc3545'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' },
-                tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} OS` } }
-            }
-        }
-    });
-    
-    // ============================================
-    // GRÁFICO DE FATURAMENTO MENSAL (LINHA)
-    // ============================================
-    const faturamentoCtx = document.getElementById('faturamentoChart').getContext('2d');
-    
-    new Chart(faturamentoCtx, {
-        type: 'line',
-        data: {
-            labels: {{ meses|safe }},
-            datasets: [{
-                label: 'Faturamento (R$)',
-                data: {{ valores|safe }},
-                borderColor: '#0d6efd',
-                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#0d6efd',
-                pointBorderColor: '#fff',
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: (ctx) => `R$ ${ctx.raw.toFixed(2)}`
+    document.addEventListener('DOMContentLoaded', function() {
+        // ============================================
+        // GRÁFICO DE STATUS (PIZZA)
+        // ============================================
+        const statusCtx = document.getElementById('osStatusChart').getContext('2d');
+        
+        // Mapear os códigos de status para nomes legíveis
+        const statusLabelsMap = {
+            'aberta': 'Aberta',
+            'em_andamento': 'Em Andamento',
+            'aguardando_peca': 'Aguardando Peça',
+            'aguardando_cliente': 'Aguardando Cliente',
+            'concluida': 'Concluída',
+            'paga': 'Paga',
+            'cancelada': 'Cancelada'
+        };
+        
+        const statusRawLabels = {{ status_labels_json|safe }};
+        const statusLabels = statusRawLabels.map(label => statusLabelsMap[label] || label);
+        const statusData = {{ status_data_json|safe }};
+
+        if (statusLabels.length > 0 && statusData.length > 0) {
+            new Chart(statusCtx, {
+                type: 'pie',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        data: statusData,
+                        backgroundColor: ['#6c757d', '#ffc107', '#0dcaf0', '#0dcaf0', '#198754', '#0d6efd', '#dc3545'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.label}: ${context.raw} OS`
+                            }
+                        }
                     }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: (value) => `R$ ${value.toFixed(2)}`
-                    }
-                }
-            }
-        }
-    });
-    
-    // ============================================
-    // FUNÇÃO PARA GERAR RELATÓRIO POR OS
-    // ============================================
-    function gerarRelatorioOS() {
-        const osNumero = document.getElementById('os_numero').value;
-        
-        if (!osNumero) {
-            alert('Digite o número da OS');
-            return;
-        }
-        
-        // Validar formato (ANO/SEQUENCIAL)
-        if (!/^\d{4}\/\d{4}$/.test(osNumero)) {
-            alert('Formato inválido. Use o formato ANO/SEQUENCIAL (ex: 2026/0001)');
-            return;
-        }
-        
-        // Buscar o ID da OS pelo número
-        fetch(`/api/buscar-os/?numero=${osNumero}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.id) {
-                    window.open(`/relatorios/os/${data.id}/pdf/`, '_blank');
-                } else {
-                    alert('OS não encontrada. Verifique o número digitado.');
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao buscar OS. Tente novamente.');
             });
-    }
+        }
+
+        // ============================================
+        // GRÁFICO DE PRIORIDADE (DONUT)
+        // ============================================
+        const prioridadeCtx = document.getElementById('osPrioridadeChart').getContext('2d');
+        
+        const prioridadeLabelsMap = {
+            'baixa': 'Baixa',
+            'normal': 'Normal',
+            'alta': 'Alta',
+            'urgente': 'Urgente'
+        };
+        
+        const prioridadeRawLabels = {{ prioridade_labels_json|safe }};
+        const prioridadeLabels = prioridadeRawLabels.map(label => prioridadeLabelsMap[label] || label);
+        const prioridadeData = {{ prioridade_data_json|safe }};
+
+        if (prioridadeLabels.length > 0 && prioridadeData.length > 0) {
+            new Chart(prioridadeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: prioridadeLabels,
+                    datasets: [{
+                        data: prioridadeData,
+                        backgroundColor: ['#198754', '#0dcaf0', '#ffc107', '#dc3545'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.label}: ${context.raw} OS`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // GRÁFICO DE FATURAMENTO MENSAL (LINHA)
+        // ============================================
+        const faturamentoCtx = document.getElementById('faturamentoChart').getContext('2d');
+        const faturamentoLabels = {{ faturamento_labels_json|safe }};
+        const faturamentoData = {{ faturamento_data_json|safe }};
+
+        if (faturamentoLabels.length > 0 && faturamentoData.length > 0) {
+            new Chart(faturamentoCtx, {
+                type: 'line',
+                data: {
+                    labels: faturamentoLabels,
+                    datasets: [{
+                        label: 'Faturamento (R$)',
+                        data: faturamentoData,
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.05)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#0d6efd',
+                        pointBorderColor: '#0d6efd',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `R$ ${context.raw.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `R$ ${value.toFixed(2)}`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}
