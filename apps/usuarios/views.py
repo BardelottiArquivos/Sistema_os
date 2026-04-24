@@ -50,6 +50,17 @@ class UsuarioUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user.tipo == 'admin' or self.request.user.is_superuser
 
 
+#class UsuarioDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+#    model = Usuario
+#    template_name = 'usuarios/usuario_confirm_delete.html'
+#    success_url = reverse_lazy('usuario_list')
+#    
+#    def test_func(self):
+#        return self.request.user.tipo == 'admin' or self.request.user.is_superuser
+#    
+#    def get_queryset(self):
+#        return Usuario.objects.exclude(id=self.request.user.id)
+
 class UsuarioDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Usuario
     template_name = 'usuarios/usuario_confirm_delete.html'
@@ -60,6 +71,33 @@ class UsuarioDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     
     def get_queryset(self):
         return Usuario.objects.exclude(id=self.request.user.id)
+    
+    def delete(self, request, *args, **kwargs):
+        """Método personalizado para tratar erros na exclusão"""
+        self.object = self.get_object()
+        
+        # Verificar se o usuário tem OS vinculadas
+        from apps.ordens_servico.models import OrdemServico
+        
+        # Verificar como técnico
+        if hasattr(self.object, 'ordens_tecnico'):
+            os_count = self.object.ordens_tecnico.count()
+            if os_count > 0:
+                messages.error(
+                    request, 
+                    f'Não é possível excluir {self.object.username}. '
+                    f'Este usuário possui {os_count} ordem(ns) de serviço vinculada(s).'
+                )
+                return redirect('usuario_list')
+        
+        try:
+            # Tentar excluir
+            self.object.delete()
+            messages.success(request, f'Usuário {self.object.username} excluído com sucesso!')
+        except Exception as e:
+            messages.error(request, f'Erro ao excluir usuário: {str(e)}')
+        
+        return redirect(self.success_url)
 
 # -----------------------------------------------------------
 

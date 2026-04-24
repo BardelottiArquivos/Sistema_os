@@ -144,6 +144,7 @@ class OSDeleteView(LoginRequiredMixin, DeleteView):
     model = OrdemServico
     template_name = 'ordens_servico/os_confirm_delete.html'
     success_url = reverse_lazy('os_list')
+    context_object_name = 'object'  # ← Importante!
 
 
 # ============================================
