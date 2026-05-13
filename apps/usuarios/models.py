@@ -10,7 +10,7 @@ class Usuario(AbstractUser):
     
     tipo = models.CharField(max_length=10, choices=TIPO_USUARIO, default='tecnico')
     telefone = models.CharField(max_length=20, blank=True)
-    matricula = models.CharField(max_length=20, unique=True)
+    matricula = models.CharField(max_length=20, unique=False)
     foto = models.ImageField(upload_to='usuarios/', null=True, blank=True)
     data_contratacao = models.DateField(null=True, blank=True)
     ativo = models.BooleanField(default=True)

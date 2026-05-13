@@ -285,13 +285,21 @@ ________________________________________
 
 👨‍💻 AUTORES
 
-Carlos Bardelotti       Desenvolvedor        @BardelottiArquivos
+Carlos Eduardo Cabral Ferreira RA 23223527
 
-Fabio Marquês de Paula	Documentação Técnica	
+Carlos Eduardo Moreira Bardelotti RA 23203089
+
+Fabio Marquês de Paula RA 23216902
+
+João Vitor Ramos Costa RA 2216874
+
+Leandro de Olliveira Tancredo RA 2108189
 
 ________________________________________
 
 Desenvolvido para o Projeto Integrador III - Univesp
+
+Integrantes do Projeto
 
 Data de entrega: Abril de 2026
 
