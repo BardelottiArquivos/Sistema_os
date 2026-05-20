@@ -291,8 +291,6 @@ ________________________________________
 
 Desenvolvido para o Projeto Integrador III - Univesp
 
-Integrantes do Projeto
-
 Data de entrega: Abril de 2026
 
 Sistema_os
