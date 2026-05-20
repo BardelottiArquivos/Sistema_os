@@ -293,7 +293,5 @@ Desenvolvido para o Projeto Integrador III - Univesp
 
 Data de entrega: Abril de 2026
 
-Sistema_os
-
 
 https://sistema-os-mnvo.onrender.com
