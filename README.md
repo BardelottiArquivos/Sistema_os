@@ -235,14 +235,10 @@ ________________________________________
 ESTRUTURA DO PROJETO
 
 sistema_os/
-
 ├── manage.py                 # Comandos do Django
-
 ├── requirements.txt          # Dependências
-
 ├── .env                      # Variáveis de ambiente
 ├── .gitignore                # Arquivos ignorados
-
 ├── Dockerfile                # Containerização
 ├── docker-compose.yml        # Orquestração
 ├── core/                     # Configurações principais
