@@ -241,7 +241,6 @@ sistema_os/
 ├── requirements.txt          # Dependências
 
 ├── .env                      # Variáveis de ambiente
-
 ├── .gitignore                # Arquivos ignorados
 
 ├── Dockerfile                # Containerização
