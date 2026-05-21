@@ -4,19 +4,19 @@ Sistema web completo para gerenciamento de ordens de serviço em empresas de man
 
 SUMÁRIO
 
-- Sobre o Projeto		(#-sobre-o-projeto)
-- Funcionalidades		(#-funcionalidades)
-- Tecnologias			(#-tecnologias)
-- Pré-requisitos		(#-pré-requisitos)
-- Instalação Local		(#-instalação-local)
-- Configuração			(#-configuração)
-- Docker				(#-docker)
-- Deploy				(#-deploy)
-- Estrutura do Projeto	(#-estrutura-do-projeto)
-- API de CEP			(#-api-de-cep)
-- Contribuição			(#-contribuição)
-- Licença				(#-licença)
-- Autores				(#-autores)
+- Sobre o Projeto		
+- Funcionalidades		
+- Tecnologias			
+- Pré-requisitos		
+- Instalação Local		
+- Configuração			
+- Docker				
+- Deploy				
+- Estrutura do Projeto	
+- API de CEP			
+- Contribuição			
+- Licença				
+- Autores				
 
 
 SOBRE O PROJETO
